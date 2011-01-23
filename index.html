@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+    <title>CSS 3D Rotate</title>
+    <style>
+    html, body { background: #333; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+    canvas     { position: absolute; top: 0; left: 0; }
+    #box {
+        -webkit-transform-style: preserve-3d;
+        -webkit-transform: rotateX(25deg) translateY(-150px) translateZ(250px);
+    }
+    </style>
+</head>
+<body>
+<div id="main">
+    <div id="box"></div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script>
+(function() {
+    var $main  = $('#main'),
+        $box   = $('#box'),
+        width  = $(window).width(),
+        height = $(window).height(),
+        effect = {
+            width:       Math.min(width, height) / 30,
+            perspective: 200,
+            lines:       75,
+        };
+    $main.css({
+        '-webkit-perspective-origin': (width / 2) + 'px ' + (height / 2) + 'px 0',
+        '-webkit-perspective': effect.perspective
+    })
+    for (var i = 0; i < effect.lines; i ++) {
+        var $canvas = $('<canvas>').attr({
+            width:  width,
+            height: height
+        });
+        var ctx    = $canvas[0].getContext('2d'),
+            angle1 = 0,
+            angle2 = Math.PI / 2 + Math.random() * Math.PI,
+            start  = Math.round(Math.random() * 360) * (Math.random() * 2 > 1 ? -1 : 1);
+        ctx.beginPath();
+        ctx.arc(width / 2, height / 2, Math.min(width, height) / 2, 0, Math.PI * 2, true);
+        ctx.fillStyle = 'rgba(255, 255, 255, ' + (0.75 * (i / effect.lines)) + ')';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(width / 2, height / 2, Math.min(width, height) / 2 - effect.width / 2, angle2, angle1, true);
+        ctx.lineWidth   = effect.width;
+        ctx.strokeStyle = 'rgba(255, 255, 255, ' + (0.75 - 0.7 * (i / effect.lines)) + ')';
+        ctx.stroke();
+        $('<style>').text(
+            '@-webkit-keyframes spin' + i + '{' +
+                'from { -webkit-transform: translateZ(-' + (i * effect.width * 2) + 'px) rotateZ(' + start + 'deg); }' +
+                'to   { -webkit-transform: translateZ(-' + (i * effect.width * 2) + 'px) rotateZ(' + (start + (start > 0 ? 360 : -360)) + 'deg); }' +
+            '}'
+        ).appendTo($('head'));
+        $canvas.css('-webkit-animation', 'spin' + i + ' ' + (5 + 10 * (i / effect.lines)) + 's infinite linear');
+        $box.append($canvas);
+    }
+})();
+</script>
+</body>
+</html>
